@@ -1,8 +1,8 @@
 QUERY_DIR := ../queries
 QUERIES := $(wildcard $(QUERY_DIR)/*.query)
-JSON := $(QUERIES:$(QUERY_DIR)/%.query=%.json)
+CSV := $(QUERIES:$(QUERY_DIR)/%.query=%.csv)
 
-all: $(JSON)
+all: $(CSV)
 
 %.raw: $(QUERY_DIR)/%.query
 	@echo Downloading $^
@@ -11,8 +11,14 @@ all: $(JSON)
 %.json: %.raw
 	@sed "s/{}&&//" < $^ > $@
 
+%.csv: %.json
+	@python ../preprocess_data.py $^ $@
+
 clean:
 	rm -f *.raw
 	rm -f *.json
+	rm -f *.csv
 
 .PHONY: clean
+
+.PRECIOUS: %.json
